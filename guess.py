@@ -66,9 +66,11 @@ def update_candidate_words():
     global candidates
     candidates = list(filter(should_still_be_considered, candidates)) 
 
+guessed_words = []
+
 while guesses < 6:
-    print(guesses)
     guess_word = random.choice(candidates)
+    guessed_words.append(guess_word)
 
     if guess_word == target_word:
         won = True
@@ -93,5 +95,5 @@ while guesses < 6:
 
     guesses += 1 
  
-
-print("won" if won else "lost")
+print(guessed_words)
+#print("won" if won else "lost")

@@ -1,5 +1,16 @@
 
 async function foo() {
+
+while (window.localStorage.getItem("wordToGuess") == null || window.localStorage.getItem("solverGuesses") == null) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+}
+
+console.log("here"); 
+
+//localStorage.getItem("")
+//console.log(window.localStorage.getItem("FOOBAR")); 
+
+const wordToGuess = window.localStorage.getItem("wordToGuess").toLocaleUpperCase(); 
 const GUESSES = ["brass", "barns", "brain"]; 
 
 const gameAppRoot = window.document.getElementsByTagName("game-app")[0]; 
@@ -11,7 +22,7 @@ const board = gameThemeManagerRoot.querySelector("#board-container");
 
 // Create the new element you want to add
 const newChild = document.createElement('div');
-newChild.innerHTML = 'The word to guess is <b>BRAIN</b>';
+newChild.innerHTML = `The word to guess is <b>${wordToGuess}</b>`;
 
 // Append the new child as the first child of the parent
 board.prepend(newChild);
