@@ -1,3 +1,3 @@
-const guessArr=['since', 'walls', 'sadly', 'falls', 'balls', 'balls'];
+const guessArr=['mange', 'whore', 'spoke', 'elope'];
 window.localStorage.setItem('solverGuesses', JSON.stringify(guessArr));
-window.localStorage.setItem('wordToGuess', 'basal');
+window.localStorage.setItem('wordToGuess', 'elope');

@@ -122,4 +122,7 @@ with open("storage.js", "w+", encoding="utf-8") as out_js_file:
     
 
 time.sleep(1)
-webbrowser.open_new_tab(f"{os.getcwd()}\game.html")
+#print(os.getcwd())
+
+
+webbrowser.open_new_tab(f'http://localhost:8009/game.html?tword={target_word}&tries={json.dumps(guessed_words)}')

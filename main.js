@@ -14381,7 +14381,10 @@
                 s = Ga(e);
             // choose a random word from the solution list
         
-            return window.localStorage.getItem("wordToGuess");
+            //return window.localStorage.getItem("wordToGuess");
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get("tword").toLocaleLowerCase();
             //TODO: Make this an inpute
             /*return (
                 (myword_index = s % SOLUTION_LIST.length),
@@ -15695,13 +15698,13 @@
                                             .querySelector("button#refresh-button")
                                             .addEventListener("click", function (a) {
                                                 // inject this special value into localStorage to retain hard mode status and also to hide the introductory modal
-                                                window.localStorage.setItem(
+                                                /*window.localStorage.setItem(
                                                     "gameState",
                                                     '{"boardState":["","","","","",""],"evaluations":[null,null,null,null,null,null],"rowIndex":0,"solution":null,"gameStatus":"IN_PROGRESS","lastPlayedTs":1,"lastCompletedTs":1,"restoringFromLocalStorage":null,"hardMode":' +
                                                         e.gameApp.hardMode.toString() +
                                                         "}"
-                                                );
-                                                location.reload();
+                                                );*/
+                                                //location.reload();
                                             });
                                 }
                             },

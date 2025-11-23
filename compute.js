@@ -1,15 +1,11 @@
 
 async function foo() {
 
-while (window.localStorage.getItem("wordToGuess") == null || window.localStorage.getItem("solverGuesses") == null) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-}
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
 
-//localStorage.getItem("")
-//console.log(window.localStorage.getItem("FOOBAR")); 
-
-const wordToGuess = window.localStorage.getItem("wordToGuess").toLocaleUpperCase(); 
-const GUESSES = JSON.parse(window.localStorage.getItem("solverGuesses"));  
+const wordToGuess = urlParams.get("tword").toLocaleUpperCase(); 
+const GUESSES = JSON.parse(urlParams.get("tries"));  
 
 console.log(GUESSES)
 
