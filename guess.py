@@ -6,7 +6,7 @@ candidates = []
 with open("known.json", "r", encoding="utf") as ifile:
     candidates = json.load(ifile)
 
-target_word = "vying"
+target_word = "goals"
 
 not_in_target = set()
 known_idxs = {}
@@ -95,5 +95,9 @@ while guesses < 6:
 
     guesses += 1 
  
- 
-#print("won" if won else "lost")
+
+jsfile_content = f"const guessArr={guessed_words};\nwindow.localStorage.setItem('solverGuesses', JSON.stringify(guessArr));\nwindow.localStorage.setItem('wordToGuess', '{target_word}');"
+
+with open("storage.js", "w+", encoding="utf-8") as out_js_file:
+    out_js_file.write(jsfile_content)
+    
