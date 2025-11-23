@@ -95,5 +95,5 @@ while guesses < 6:
 
     guesses += 1 
  
-print(guessed_words)
+ 
 #print("won" if won else "lost")

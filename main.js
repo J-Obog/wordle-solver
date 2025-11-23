@@ -14380,8 +14380,8 @@
             var myword_index,
                 s = Ga(e);
             // choose a random word from the solution list
-            
-            return "brain";
+        
+            return window.localStorage.getItem("wordToGuess");
             //TODO: Make this an inpute
             /*return (
                 (myword_index = s % SOLUTION_LIST.length),

@@ -5,13 +5,13 @@ while (window.localStorage.getItem("wordToGuess") == null || window.localStorage
     await new Promise(resolve => setTimeout(resolve, 500));
 }
 
-console.log("here"); 
-
 //localStorage.getItem("")
 //console.log(window.localStorage.getItem("FOOBAR")); 
 
 const wordToGuess = window.localStorage.getItem("wordToGuess").toLocaleUpperCase(); 
-const GUESSES = ["brass", "barns", "brain"]; 
+const GUESSES = JSON.parse(window.localStorage.getItem("solverGuesses"));  
+
+console.log(GUESSES)
 
 const gameAppRoot = window.document.getElementsByTagName("game-app")[0]; 
 const gameKeyboardRoot = gameAppRoot.shadowRoot.querySelector("game-keyboard"); 
