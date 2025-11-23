@@ -1,115 +1,128 @@
 import json
 import random
+from typing import List
 import webbrowser
 import os
 import time
+from enum import IntEnum
+from dataclasses import dataclass
 
-candidates = [] 
-historical_solutions = set()
-allowed_words = set() 
+class LetterFeedbackType(IntEnum):
+    NOT_PRESENT = 0
+    WRONG_SPOT = 1
+    CORRECT = 2
+
+@dataclass
+class LetterFeedback:
+    feedback_type: LetterFeedbackType
+    letter: chr
+    letter_index: int
 
 def get_json_from_file(filename):
     with open(filename, "r", encoding="utf-8") as ifile:
         return json.load(ifile)
 
-candidates = get_json_from_file("known.json")
-historical_solutions = set(get_json_from_file("wordle_solutions.json"))
-allowed_words = set(get_json_from_file("wordle_allowed.json"))
-
-target_word = random.choice(list(historical_solutions))
-
-not_in_target = set()
-known_idxs = {}
-unknown_idxs = set()
-
-guesses = 0
-won = False
-
-def get_feedback(guess_word):
+def get_guess_feedback(guess_word: str, target_word: str) -> List[LetterFeedback]:
     if len(guess_word) != 5:
         raise Exception("word must be 5 characters")
-
-    mi = {}
-    ni = set()
-    mc = set()
+    
+    feedback = []
 
     for i in range(5):
+        feedback_type = None
         if guess_word[i] == target_word[i]:
-            matched_char = guess_word[i]
-            if matched_char not in mi:
-                mi[matched_char] = set()
+            feedback_type = LetterFeedbackType.CORRECT
+        elif guess_word[i] not in target_word:
+            feedback_type = LetterFeedbackType.NOT_PRESENT
+        else:
+            feedback_type = LetterFeedbackType.WRONG_SPOT
 
-            mi[matched_char].add(i)
-    
-    guess_word_set = set(guess_word)
-    target_word_set = set(target_word)
+        feedback.append(LetterFeedback(feedback_type, guess_word[i], i))
 
-    ni = guess_word_set.difference(target_word_set)
+    return feedback
 
-    #for simplicity, let's assume the target word doesn't have any repeating letters
-    mc = guess_word_set.intersection(target_word_set).difference(set(mi.keys()))
+def get_potential_guesses(letter_feedbacks: List[LetterFeedback], known_words: List[str]) -> List[str]:
+    not_present_set = set()
+    correct_idx_map = {}
+    wrong_spot_map = {}
 
-    return {"mi": mi, "ni": ni, "mc": mc}
+    for letter_feedback in letter_feedbacks:
+        if letter_feedback.feedback_type == LetterFeedbackType.CORRECT:
+            letter = letter_feedback.letter
+            if letter not in correct_idx_map:
+                correct_idx_map[letter] = []
+
+            correct_idx_map[letter].append(letter_feedback.letter_index)
+        elif letter_feedback.feedback_type == LetterFeedbackType.NOT_PRESENT:
+            not_present_set.add(letter_feedback.letter)
+        else:
+            letter = letter_feedback.letter
+            if letter not in wrong_spot_map:
+                wrong_spot_map[letter] = []
+
+            wrong_spot_map[letter].append(letter_feedback.letter_index) 
 
 
-def should_still_be_considered(word):
-    if len(known_idxs) > 0:
-        for char in known_idxs:
-            idxs = known_idxs[char]
-            idx = list(idxs)[0] # the target word should not have repeating characters
-            if word[idx] != char: 
-                return False
+    #print(letter_feedbacks, not_present_set, correct_idx_map, wrong_spot_map)
+    candidate_words = []
 
-    if len(unknown_idxs) > 0:
-        for char in unknown_idxs:
-            if char not in word:
-                return False
-
-    if len(not_in_target) > 0:
-        for char in not_in_target:
-            if char in word:
-                return False
+    for known_word in known_words:
+        if len(wrong_spot_map) > 0:
+            if any([letter in not_present_set for letter in known_word]):
+                continue
+        
+        if len(correct_idx_map) > 0:
+            should_still_consider = True
+            for correct_idx_letter in correct_idx_map:
+                for idx in correct_idx_map[correct_idx_letter]:
+                    if known_word[idx] != correct_idx_letter:
+                        should_still_consider = False
             
-    return True
+            if not should_still_consider:
+                continue
 
-def update_candidate_words():
-    global candidates
-    candidates = list(filter(should_still_be_considered, candidates)) 
+        if len(wrong_spot_map) > 0:
+            should_still_consider = True
+            for wrong_spot_letter in wrong_spot_map:
+                for idx in wrong_spot_map[wrong_spot_letter]:
+                    if known_word[idx] == wrong_spot_letter:
+                        should_still_consider = False
+            
+            if not should_still_consider:
+                continue
+        
+        candidate_words.append(known_word)
 
+    return candidate_words
+
+
+known_words = get_json_from_file("known.json")
+historical_solutions = set(get_json_from_file("wordle_solutions.json"))
+allowed_words = set(get_json_from_file("wordle_allowed.json"))
 guessed_words = []
+target_word = random.choice(list(historical_solutions))
+guess_feedbacks: List[LetterFeedback] = []
+guesses = 0
+
+#print("TARGET=", target_word)
 
 while guesses < 6:
-    guess_word = random.choice(candidates)
+    potential_guesses = get_potential_guesses(guess_feedbacks, known_words)
+    guess_word = random.choice(potential_guesses)
 
-    # this doesn't give the solver any more information that a person would get if the word is invalid
     is_word_valid = (guess_word in allowed_words) or (guess_word in historical_solutions)
 
-    if is_word_valid:
-        guessed_words.append(guess_word)
+    if not is_word_valid:
+        continue
+
+    guessed_words.append(guess_word)
+    guesses += 1 
 
     if guess_word == target_word:
         break
 
-    feedback = get_feedback(guess_word)
-    
-    not_in_target.update(feedback["ni"])
+    guess_feedbacks.extend(get_guess_feedback(guess_word, target_word))
 
-    for char in feedback["mi"]:
-        if char in known_idxs:
-            known_idxs[char].update(feedback["mi"][char])
-        else:
-            known_idxs[char] = feedback["mi"][char]
-    
-    unknown_idxs.update(feedback["mc"])
-
-    for char in known_idxs:
-        unknown_idxs.discard(char)
-
-    update_candidate_words()
-
-    if is_word_valid:
-        guesses += 1 
- 
 
 time.sleep(1)
 webbrowser.open_new_tab(f'http://localhost:8009/game.html?tword={target_word}&tries={json.dumps(guessed_words)}')
