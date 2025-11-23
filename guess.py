@@ -1,12 +1,12 @@
 import json
+import random
 
 candidates = [] 
 
 with open("known.json", "r", encoding="utf") as ifile:
     candidates = json.load(ifile)
 
-target_word = "brain"
-start_word = "rinse"
+target_word = "vying"
 
 not_in_target = set()
 known_idxs = {}
@@ -42,12 +42,33 @@ def get_feedback(guess_word):
     return {"mi": mi, "ni": ni, "mc": mc}
 
 
+def should_still_be_considered(word):
+    if len(known_idxs) > 0:
+        for char in known_idxs:
+            idxs = known_idxs[char]
+            idx = list(idxs)[0] # the target word should not have repeating characters
+            if word[idx] != char: 
+                return False
+
+    if len(unknown_idxs) > 0:
+        for char in unknown_idxs:
+            if char not in word:
+                return False
+
+    if len(not_in_target) > 0:
+        for char in not_in_target:
+            if char in word:
+                return False
+            
+    return True
+
+def update_candidate_words():
+    global candidates
+    candidates = list(filter(should_still_be_considered, candidates)) 
+
 while guesses < 6:
-    guess_word = None
-    if guesses == 0:
-        guess_word = start_word
-    else:
-        pass
+    print(guesses)
+    guess_word = random.choice(candidates)
 
     if guess_word == target_word:
         won = True
@@ -67,6 +88,8 @@ while guesses < 6:
 
     for char in known_idxs:
         unknown_idxs.discard(char)
+
+    update_candidate_words()
 
     guesses += 1 
  
