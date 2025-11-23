@@ -1,1 +1,1 @@
-wordle bot
+wordle solver
