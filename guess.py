@@ -1,6 +1,5 @@
 import json
 
-
 candidates = [] 
 
 with open("known.json", "r", encoding="utf") as ifile:
@@ -14,10 +13,20 @@ known_idxs = {}
 unknown_idxs = set()
 
 guesses = 0
-
+won = False
 
 while guesses < 6:
-    break
+    guess_word = None
+    if guesses == 0:
+        guess_word = start_word
+    else:
+        pass
+
+    if guess_word == target_word:
+        won = True
+        break
+
+    guesses += 1 
 
 
-print("lost")
+print("won" if won else "lost")
