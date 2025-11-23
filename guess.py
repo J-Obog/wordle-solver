@@ -27,9 +27,9 @@ def get_feedback(guess_word):
         if guess_word[i] == target_word[i]:
             matched_char = guess_word[i]
             if matched_char not in mi:
-                mi[matched_char] = []
+                mi[matched_char] = set()
 
-            mi[matched_char].append(i)
+            mi[matched_char].add(i)
     
     guess_word_set = set(guess_word)
     target_word_set = set(target_word)
@@ -53,10 +53,22 @@ while guesses < 6:
         won = True
         break
 
-    print(get_feedback(guess_word))
+    feedback = get_feedback(guess_word)
     
-    break
-    guesses += 1 
+    not_in_target.update(feedback["ni"])
 
+    for char in feedback["mi"]:
+        if char in known_idxs:
+            known_idxs[char].update(feedback["mi"][char])
+        else:
+            known_idxs[char] = feedback["mi"][char]
+    
+    unknown_idxs.update(feedback["mc"])
+
+    for char in known_idxs:
+        unknown_idxs.discard(char)
+
+    guesses += 1 
+ 
 
 print("won" if won else "lost")
