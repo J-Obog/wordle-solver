@@ -67,7 +67,7 @@ def get_potential_guesses(letter_feedbacks: List[LetterFeedback], known_words: L
     candidate_words = []
 
     for known_word in known_words:
-        if len(wrong_spot_map) > 0:
+        if len(not_present_set) > 0:
             if any([letter in not_present_set for letter in known_word]):
                 continue
         
