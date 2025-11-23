@@ -14756,6 +14756,7 @@
                                         this.$board.appendChild(s);
                                 }
                                 this.$game.addEventListener("game-key-press", function (a) {
+                                    //console.log(e.submitGuess)
                                     var s = a.detail.key;
                                     "←" === s || "Backspace" === s
                                         ? e.removeLetter()
@@ -14968,6 +14969,7 @@
                                 this.shadowRoot.appendChild(rs.content.cloneNode(!0)),
                                     (this.$keyboard = this.shadowRoot.getElementById("keyboard")),
                                     this.$keyboard.addEventListener("click", function (a) {
+                                        //console.log("here", a)
                                         var s = a.target.closest("button");
                                         s && e.$keyboard.contains(s) && e.dispatchKeyPressEvent(s.dataset.key);
                                     }),
